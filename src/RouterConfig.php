@@ -6,9 +6,9 @@ use http\Exception\InvalidArgumentException;
 
 class RouterConfig
 {
-    private bool  $useMemcacheD          = false;
+    private bool  $useMemcached          = false;
     private array $attribute_directories = [];
-    private array $memcached_servers = [];
+    private array $memcached_servers     = [];
 
     public function __construct()
     {
@@ -35,19 +35,19 @@ class RouterConfig
         $this->memcached_servers = $memcached_servers;
     }
 
-    public function isUseMemcacheD(): bool
+    public function isUseMemcached(): bool
     {
-        return $this->useMemcacheD;
+        return $this->useMemcached;
     }
 
-    public function setUseMemcacheD(bool $useMemcacheD): void
+    public function setUseMemcached(bool $useMemcached): void
     {
-        $this->useMemcacheD = $useMemcacheD;
+        $this->useMemcached = $useMemcached;
     }
 
     public function addMemcacheDServer(string $host, int $port = 11211): void
     {
-        $this->useMemcacheD = true;
+        $this->useMemcached = true;
         $this->memcached_servers[] = [$host, $port];
     }
 

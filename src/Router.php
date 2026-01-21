@@ -20,8 +20,8 @@ class Router
     {
         $this->config = $config;
         $routes_loaded = false;
-        if ($this->config->isUseMemcacheD()) {
-            $this->initMemcacheD();
+        if ($this->config->isUseMemcached()) {
+            $this->initMemcached();
             if ($cache = $this->m->get('route_collection')) {
                 $this->route_collection = unserialize(zlib_decode($cache));
                 $routes_loaded = true;
@@ -35,14 +35,14 @@ class Router
             if ($this->sequencing_required) {
                 $this->route_collection->sequence();
             }
-            if ($this->config->isUseMemcacheD()) {
+            if ($this->config->isUseMemcached()) {
                 $this->m->set('route_collection', zlib_encode(serialize($this->route_collection), ZLIB_ENCODING_DEFLATE), 60);
             }
         }
 
     }
 
-    public function initMemcacheD(): void
+    public function initMemcached(): void
     {
         $this->m = new Memcached();
         foreach ($this->config->getMemcachedServers() as $server) {

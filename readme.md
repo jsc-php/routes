@@ -34,7 +34,7 @@ $router = new Router($router_config);
 > [!NOTE]
 > If you want to use Memcached for caching, ensure Memcached is installed and configured properly.
 > ```
-> $router_config->addMemcacheDServer('localhost', '11211');
+> $router_config->addMemcachedServer('localhost', '11211');
 > ```
 > Port number is optional if using default Memcached port.
 
