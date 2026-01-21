@@ -15,8 +15,10 @@
   ],
   "require": {
     "php": ">=8.5",
-    "ext-memcached": "*",
     "ext-zlib": "*",
     "ext-http": "*"
+  },
+  "suggest": {
+    "ext-memcached": "*"
   }
 }

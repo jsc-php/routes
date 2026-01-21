@@ -6,7 +6,6 @@ use JscPhp\Routes\Request;
 
 class Route
 {
-
     private string $route;
     private string $pattern;
     private string $class;
@@ -27,7 +26,7 @@ class Route
         $pattern = $this->route;
         $pattern = str_replace('/', '\/', $pattern);
         $pattern = str_replace('?', '\?', $pattern);
-        preg_match_all('/{([^\/=&?]*)}/', $this->route, $matches, PREG_SET_ORDER);
+        preg_match_all('/{([^\/]*)}/', $this->route, $matches, PREG_SET_ORDER);
 
         foreach ($matches as $match) {
             $parts = [];
@@ -38,10 +37,11 @@ class Route
             } else {
                 $parts[] = $match[1];
             }
-            $this->parameters[] = $parts[0];
 
+            $optional = str_ends_with($parts[0], '?');
+            $this->parameters[] = trim($parts[0], '?');
             if (count($parts) == 1) {
-                $r = '([^\/=?]+)';
+                $r = '([^\/=&?]' . (($optional) ? '*' : '+') . ')';
             } else if (strlen($parts[1]) > 1) {
                 $r = '(' . $parts[1] . ')';
             } else {
@@ -52,6 +52,7 @@ class Route
                     default   => '([^\/=?]+)'
                 };
             }
+            echo "R = $r", PHP_EOL;
             $pattern = str_replace($match[0], $r, $pattern);
         }
         $this->pattern = '/^' . $pattern . '$/';
