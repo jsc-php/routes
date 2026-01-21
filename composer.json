@@ -1,18 +1,22 @@
 {
-    "name": "jsc-php/routes",
-    "description": "My Personal Router",
-    "license": "GPL-3.0-or-later",
-    "autoload": {
-        "psr-4": {
-            "JscPhp\\Routes\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "James Cavaliere"
-        }
-    ],
-    "require": {
-        "php": ">=8.5"
+  "name": "jsc-php/routes",
+  "description": "My Personal Router",
+  "license": "GPL-3.0-or-later",
+  "version": "0.1.0",
+  "autoload": {
+    "psr-4": {
+      "JscPhp\\Routes\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "James Cavaliere"
+    }
+  ],
+  "require": {
+    "php": ">=8.5",
+    "ext-memcached": "*",
+    "ext-zlib": "*",
+    "ext-http": "*"
+  }
 }
