@@ -30,15 +30,28 @@ class Route
         preg_match_all('/{([^\/=&?]*)}/', $this->route, $matches, PREG_SET_ORDER);
 
         foreach ($matches as $match) {
-            $parts = explode('|', $match[1]);
+            $parts = [];
+            if (str_contains($match[1], '|')) {
+                $pos = strpos($match[1], '|');
+                $parts[] = substr($match[1], 0, $pos);
+                $parts[] = substr($match[1], $pos + 1);
+            } else {
+                $parts[] = $match[1];
+            }
             $this->parameters[] = $parts[0];
-            $r = match ($parts[1] ?? null) {
-                'i'     => '(\d+)',
-                'a'     => '([a-zA-Z]+)',
-                'd'     => '(\d+\.{0,1}\d*)',
-                'x'     => '(' . $parts[2] . ')',
-                default => '([^\/=?]+)'
-            };
+
+            if (count($parts) == 1) {
+                $r = '([^\/=?]+)';
+            } else if (strlen($parts[1]) > 1) {
+                $r = '(' . $parts[1] . ')';
+            } else {
+                $r = match ($parts[1]) {
+                    'i'       => '(\d+)',
+                    'a'       => '([a-zA-Z]+)',
+                    'd', 'f', => '(\d+\.{0,1}\d*)',
+                    default   => '([^\/=?]+)'
+                };
+            }
             $pattern = str_replace($match[0], $r, $pattern);
         }
         $this->pattern = '/^' . $pattern . '$/';

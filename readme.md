@@ -27,8 +27,9 @@ Create a 'RouterConfig' instance and pass it to the Router constructor.
 
 ```
 $router_config = new \JscPhp\Routes\RouterConfig();
-$router_config->addDirectory(__DIR__ . '/controllers');
+$router_config->addDirectory('/path/to/controllers');
 $router = new Router($router_config);
+$router->route();
 ```
 
 > [!NOTE]
@@ -36,7 +37,57 @@ $router = new Router($router_config);
 > ```
 > $router_config->addMemcachedServer('localhost', '11211');
 > ```
-> Port number is optional if using default Memcached port.
+> Port number is optional if using the default Memcached port.
+
+## Attributes
+
+Add a JscPhp\Routes\Attributes\Route attribute to the controller method you want to handle the request.
+
+```
+use JscPhp\Routes\Attributes\Route;
+class Controller {
+    #[Route('/post')]
+    function post() {...}
+}
+
+```
+
+You can also add multiple attributes to the same method.
+
+```
+use JscPhp\Routes\Attributes\Route;
+...
+#[Route('/post')]
+#[Route('/read')]
+function post() {...}
+```
+
+Parameters can be defined it the route path by wrapping them in curly braces.
+
+```
+use JscPhp\Routes\Attributes\Route;
+...
+#[Route('/post/{id}/{page}')]
+public function post($id, $page) {...}
+```
+
+Adding a pipe <|> to the parameter is optional but can limit the type of values that can be accepted for that
+parameter.  
+For custom types, you can use also use regex expression after the pipe.
+
+> [!NOTE]  
+> 'i' - integer  
+> 'a' - alpha  
+> 'd' or 'f' = decimal/float
+
+```
+use JscPhp\Routes\Attributes\Route;
+...
+#[Route('/hello/{id}')] - Matches /hello/abc123
+#[Route('/hello/{id|i}')] - Matches /hello/123 but not /hello/abc123
+#[Route('/hello/{id|\d{3}}')] - Matches /hello/123 but not /hello/1234
+```
+
 
 
 

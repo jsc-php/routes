@@ -18,7 +18,7 @@ class Test
         print_r(func_get_args());
     }
 
-    #[Route('/call/{apple}/{id|x|\d{3}}', ['GET'])]
+    #[Route('/call/{apple}/{id|\d{3}}', ['GET'])]
     public function callToArms(string $id, string $apple)
     {
         echo 'Hello', PHP_EOL;
