@@ -10,8 +10,8 @@ class Test
     {
     }
 
-    #[Route('/test/{id?}', ['GET'], name: 'test')]
-    public function test(string $id)
+    #[Route('/test/{id}/{test?}', ['GET'], name: 'test')]
+    public function test(string $id, ?string $test = null)
     {
         echo 'Hello', PHP_EOL;
         print_r(func_get_args());

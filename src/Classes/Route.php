@@ -25,8 +25,7 @@ class Route
     {
         $pattern = $this->route;
         $pattern = str_replace('/', '\/', $pattern);
-        $pattern = str_replace('?', '\?', $pattern);
-        preg_match_all('/{([^\/]*)}/', $this->route, $matches, PREG_SET_ORDER);
+        preg_match_all('/{(.*?)}/', $this->route, $matches, PREG_SET_ORDER);
 
         foreach ($matches as $match) {
             $parts = [];
@@ -43,16 +42,20 @@ class Route
             if (count($parts) == 1) {
                 $r = '([^\/=&?]' . (($optional) ? '*' : '+') . ')';
             } else if (strlen($parts[1]) > 1) {
-                $r = '(' . $parts[1] . ')';
+                $p = trim($parts[1], '()');
+                $r = '(' . $p . ')';
             } else {
-                $r = match ($parts[1]) {
-                    'i'       => '(\d+)',
-                    'a'       => '([a-zA-Z]+)',
-                    'd', 'f', => '(\d+\.{0,1}\d*)',
-                    default   => '([^\/=?]+)'
-                };
+                if (in_array($parts[1], ['d', 'f'])) {
+                    $r = '(\d+\.{0,1}\d*)';
+                } else {
+                    $r = match ($parts[1]) {
+                        'i'     => '(\d',
+                        'a'     => '([a-zA-Z]',
+                        default => '([^\/=?])'
+                    };
+                    $r .= (($optional) ? '*' : '+') . '?)';
+                }
             }
-            echo "R = $r", PHP_EOL;
             $pattern = str_replace($match[0], $r, $pattern);
         }
         $this->pattern = '/^' . $pattern . '$/';
@@ -93,7 +96,7 @@ class Route
         if (!$uri) {
             $uri = Request::getURI();
         }
-        $uri = '/' . trim($uri, '/');
+        //$uri = '/' . trim($uri, '/');
         if (preg_match($this->pattern, $uri)) {
             $this->parameters = $this->getParametersFromURI($uri);
             return true;
@@ -120,7 +123,7 @@ class Route
         return $this->pattern;
     }
 
-    public function go()
+    public function go(): void
     {
         $class = new $this->class;
         $class->{$this->method}(...$this->parameters);

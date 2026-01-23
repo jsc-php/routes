@@ -39,7 +39,7 @@ $router->route();
 > ```
 > Port number is optional if using the default Memcached port.
 
-## Attributes
+## Route Attribute
 
 Add a JscPhp\Routes\Attributes\Route attribute to the controller method you want to handle the request.
 
@@ -69,6 +69,12 @@ use JscPhp\Routes\Attributes\Route;
 ...
 #[Route('/post/{id}/{page}')]
 public function post($id, $page) {...}
+```
+
+Adding a question mark to the parameter name makes it optional.
+
+```
+#[Route('/post/{id?}')]
 ```
 
 Adding a pipe <|> to the parameter is optional but can limit the type of values that can be accepted for that
