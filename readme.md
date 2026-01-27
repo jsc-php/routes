@@ -39,7 +39,7 @@ $router->route();
 > ```
 > Port number is optional if using the default Memcached port.
 
-## Route Attribute
+### Route Attribute
 
 Add a JscPhp\Routes\Attributes\Route attribute to the controller method you want to handle the request.
 
@@ -78,19 +78,22 @@ Adding a question mark to the parameter name makes it optional.
 ```
 
 Adding a pipe <|> to the parameter is optional but can limit the type of values that can be accepted for that
-parameter.  
-For custom types, you can use also use regex expression after the pipe.
-
-> [!NOTE]  
-> 'i' - integer  
-> 'a' - alpha  
-> 'd' or 'f' = decimal/float
+parameter.
 
 ```
-use JscPhp\Routes\Attributes\Route;
-...
-#[Route('/hello/{id}')] - Matches /hello/abc123
-#[Route('/hello/{id|i}')] - Matches /hello/123 but not /hello/abc123
+ 'i' - integer  
+ 'a' - alpha  
+ 'd' or 'f' = decimal/float
+
+ use JscPhp\Routes\Attributes\Route;
+
+ #[Route('/hello/{id}')] - Matches /hello/abc123  
+ #[Route('/hello/{id|i}')] - Matches /hello/123 but not /hello/abc123
+ ```
+
+For custom types, you can use also use a regex expression after the pipe. Do not include parentheses.
+
+```  
 #[Route('/hello/{id|\d{3}}')] - Matches /hello/123 but not /hello/1234
 ```
 
