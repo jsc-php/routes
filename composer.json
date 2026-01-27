@@ -1,6 +1,12 @@
 {
   "name": "jsc-php/routes",
-  "description": "My Personal Router",
+  "description": "Attribute Routing for PHP",
+  "type": "library",
+  "keywords": [
+    "routes",
+    "attributes"
+  ],
+  "homepage": "https://github.com/jsc-php/routes",
   "license": "GPL-3.0-or-later",
   "version": "0.1.0",
   "autoload": {

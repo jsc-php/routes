@@ -2,13 +2,18 @@
 
 namespace JscPhp\Routes;
 
+use Exception;
 use FilesystemIterator;
 use JscPhp\Routes\Attributes\Route;
 use JscPhp\Routes\Classes\RouteCollection;
 use JscPhp\Routes\Utility\File;
 use Memcached;
+use ReflectionAttribute;
 use ReflectionMethod;
 
+/**
+ * Router class for handling route configuration and routing.
+ */
 class Router
 {
     public RouteCollection $route_collection;
@@ -16,6 +21,14 @@ class Router
     private Memcached      $m;
     private bool           $sequencing_required = false;
 
+    /**
+     * Build the router and load the route collection.
+     *
+     * Scans attribute directories and optionally uses Memcached to cache the
+     * serialized collection.
+     *
+     * @param RouterConfig $config
+     */
     public function __construct(RouterConfig $config)
     {
         $this->config = $config;
@@ -42,6 +55,11 @@ class Router
 
     }
 
+    /**
+     * Initialize Memcached connection with configured servers.
+     *
+     * @return void
+     */
     public function initMemcached(): void
     {
         $this->m = new Memcached();
@@ -50,6 +68,11 @@ class Router
         }
     }
 
+    /**
+     * Process attribute directories and load route classes.
+     *
+     * @return void
+     */
     private function processDirectories(): void
     {
         foreach ($this->config->getAttributeDirectories() as $directory) {
@@ -68,15 +91,31 @@ class Router
         }
     }
 
+    /**
+     * Process a single PHP class file and extract public methods..
+     *
+     * @param string $class_name
+     *
+     * @return void
+     * @throws \ReflectionException
+     */
     private function processClass(string $class_name): void
     {
         //echo 'Processing class: ' . $class_name, PHP_EOL;
         $reflect = new \ReflectionClass($class_name);
-        foreach ($reflect->getMethods() as $method) {
+        foreach ($reflect->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
             $this->processMethod($method, $class_name);
         }
     }
 
+    /**
+     * Process a single method and extract route attributes.
+     *
+     * @param ReflectionMethod $method
+     * @param string           $class_name
+     *
+     * @return void
+     */
     private function processMethod(ReflectionMethod $method, string $class_name): void
     {
         foreach ($method->getAttributes(Route::class) as $attribute) {
@@ -84,7 +123,17 @@ class Router
         }
     }
 
-    private function processAttribute(\ReflectionAttribute $attribute, string $class_name, string $method): void
+    /**
+     * Process a single route attribute and extract route details.
+     *
+     * @param ReflectionAttribute $attribute
+     * @param string              $class_name
+     * @param string              $method
+     *
+     * @return void
+     */
+
+    private function processAttribute(ReflectionAttribute $attribute, string $class_name, string $method): void
     {
         $arguments = $attribute->getArguments();
         $route = $arguments['route'] ?? $arguments[0];
@@ -103,6 +152,14 @@ class Router
         $this->route_collection->addRoute($r, $methods, $priority);
     }
 
+    /**
+     * Route the current request URI to the appropriate controller method.
+     *
+     * @param string|null $uri If not provided, uses the current request URI.
+     *
+     * @return void
+     * @throws Exception
+     */
     public function route(?string $uri = null): void
     {
         if (!$uri) {
@@ -110,10 +167,18 @@ class Router
         }
         $route = $this->getRoute($uri);
         if (!$route) {
-            throw new \Exception('No route found');
+            throw new Exception('No route found');
         }
         $route->go();
     }
+
+    /**
+     * Retrieve a route based on the provided URI.
+     *
+     * @param string|null $uri If not provided, uses the current request URI.
+     *
+     * @return Classes\Route|false
+     */
 
     public function getRoute(?string $uri = null): Classes\Route|false
     {

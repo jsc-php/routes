@@ -10,6 +10,9 @@ class RouterConfig
     private array $attribute_directories = [];
     private array $memcached_servers     = [];
 
+    /**
+     * RouterConfig constructor.
+     */
     public function __construct()
     {
 
@@ -20,6 +23,11 @@ class RouterConfig
         return $this->attribute_directories;
     }
 
+    /**
+     * @param array $attribute_directories
+     *
+     * @return void
+     */
     public function setAttributeDirectories(array $attribute_directories): void
     {
         $this->attribute_directories = $attribute_directories;
@@ -50,6 +58,12 @@ class RouterConfig
         $this->useMemcached = true;
         $this->memcached_servers[] = [$host, $port];
     }
+
+    /**
+     * @param string $directory
+     *
+     * @return void
+     */
 
     public function addAttributeDirectory(string $directory): void
     {
