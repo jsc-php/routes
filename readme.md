@@ -5,7 +5,7 @@ A simple PHP router for handling HTTP requests and routing them to appropriate c
 ## Installation
 
 ```
-$ composer require jsc-php/router
+$ composer require jsc-php/routes
 ```
 
 ## Router Class
