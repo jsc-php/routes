@@ -8,6 +8,7 @@ class Test
 {
     public function __construct()
     {
+
     }
 
     #[Route('/test/{id}/{test?}', ['GET'], name: 'test')]
