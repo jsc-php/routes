@@ -2,7 +2,6 @@
 
 namespace JscPhp\Routes;
 
-use Exception;
 use FilesystemIterator;
 use JscPhp\Routes\Attributes\Route;
 use JscPhp\Routes\Classes\RouteCollection;
@@ -149,25 +148,6 @@ class Router {
         return $r;
     }
 
-    /**
-     * Route the current request URI to the appropriate controller method.
-     *
-     * @param string|null            $uri If not provided, uses the current request URI.
-     * @param array{protected: bool} $options
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function route(?string $uri = null, $options = []): void {
-        if (!$uri) {
-            $uri = Request::getURI();
-        }
-        $route = $this->getRoute($uri, $options);
-        if (!$route) {
-            throw new Exception('No route found');
-        }
-        $route->go();
-    }
 
     /**
      * Retrieve a route based on the provided URI.
