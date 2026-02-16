@@ -14,8 +14,7 @@ use ReflectionMethod;
 /**
  * Router class for handling route configuration and routing.
  */
-class Router
-{
+class Router {
     public RouteCollection $route_collection;
     private RouterConfig   $config;
     private Memcached      $m;
@@ -29,8 +28,7 @@ class Router
      *
      * @param RouterConfig $config
      */
-    public function __construct(RouterConfig $config)
-    {
+    public function __construct(RouterConfig $config) {
         $this->config = $config;
         $routes_loaded = false;
         if ($this->config->isUseMemcached()) {
@@ -60,8 +58,7 @@ class Router
      *
      * @return void
      */
-    public function initMemcached(): void
-    {
+    public function initMemcached(): void {
         $this->m = new Memcached();
         foreach ($this->config->getMemcachedServers() as $server) {
             $this->m->addServer($server[0], $server[1]);
@@ -73,8 +70,7 @@ class Router
      *
      * @return void
      */
-    private function processDirectories(): void
-    {
+    private function processDirectories(): void {
         foreach ($this->config->getAttributeDirectories() as $directory) {
             if (!is_dir($directory)) {
                 throw new \InvalidArgumentException('Supplied directory is not a directory');
@@ -99,8 +95,7 @@ class Router
      * @return void
      * @throws \ReflectionException
      */
-    private function processClass(string $class_name): void
-    {
+    private function processClass(string $class_name): void {
         //echo 'Processing class: ' . $class_name, PHP_EOL;
         $reflect = new \ReflectionClass($class_name);
         foreach ($reflect->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
@@ -116,10 +111,12 @@ class Router
      *
      * @return void
      */
-    private function processMethod(ReflectionMethod $method, string $class_name): void
-    {
+    private function processMethod(ReflectionMethod $method, string $class_name): void {
         foreach ($method->getAttributes(Route::class) as $attribute) {
-            $this->processAttribute($attribute, $class_name, $method->getName());
+            $route = $this->processAttribute($attribute, $class_name, $method->getName());
+            if ($method->getAttributes(\JscPhp\Authorization\Attr\Access::class)) {
+                $route->setProtected(true);
+            }
         }
     }
 
@@ -133,8 +130,7 @@ class Router
      * @return void
      */
 
-    private function processAttribute(ReflectionAttribute $attribute, string $class_name, string $method): void
-    {
+    private function processAttribute(ReflectionAttribute $attribute, string $class_name, string $method): \JscPhp\Routes\Classes\Route {
         $arguments = $attribute->getArguments();
         $route = $arguments['route'] ?? $arguments[0];
         $methods = $arguments['http_methods'] ?? $arguments[1];
@@ -143,13 +139,14 @@ class Router
         if ($priority < 999) {
             $this->sequencing_required = true;
         }
-        $r = new Classes\Route($route);
+        $r = new Classes\Route($attribute->newInstance());
         if (strlen($name) > 0) {
             $r->setName($name);
         }
         $r->setClassName($class_name);
         $r->setMethod($method);
         $this->route_collection->addRoute($r, $methods, $priority);
+        return $r;
     }
 
     /**
@@ -160,8 +157,7 @@ class Router
      * @return void
      * @throws Exception
      */
-    public function route(?string $uri = null): void
-    {
+    public function route(?string $uri = null): void {
         if (!$uri) {
             $uri = Request::getURI();
         }
@@ -176,15 +172,18 @@ class Router
      * Retrieve a route based on the provided URI.
      *
      * @param string|null $uri If not provided, uses the current request URI.
+     * @param array       $options
      *
      * @return Classes\Route|false
      */
 
-    public function getRoute(?string $uri = null): Classes\Route|false
-    {
+    public function getRoute(?string $uri = null, array $options = []): Classes\Route|false {
+        $options = array_merge([
+                'protected' => false,
+        ], $options);
         if (!$uri) {
             $uri = Request::getURI();
         }
-        return $this->route_collection->findMatch($uri);
+        return $this->route_collection->findMatch($uri, $options);
     }
 }

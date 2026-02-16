@@ -20,6 +20,7 @@ attributes and handles request routing.
 - **Priority-based routing**: Control route matching order with priority values
 - **Named routes**: Assign names to routes for easier reference
 - **Pattern matching**: Supports dynamic URL patterns with parameter extraction
+- **Access Control**: Supports two different routes using the same routes if the user is logged in or not
 
 ## Usage
 
