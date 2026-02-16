@@ -26,7 +26,7 @@ class RouteCollection
         $this->collection = $new;
     }
 
-    public function findMatch(?string $uri = null, bool $public = true): Route|false
+    public function findMatch(?string $uri = null, bool $protected = true): Route|false
     {
         if (!$uri) {
             $uri = $_SERVER['REQUEST_URI'];
@@ -34,7 +34,7 @@ class RouteCollection
         $method = Request::getMethod() ?? 'GET';
         foreach ($this->collection[$method] as $priority) {
             foreach ($priority as $route) {
-                if ($route->match($uri, $public)) {
+                if ($route->match($uri, $protected)) {
                     return $route;
                 }
             }

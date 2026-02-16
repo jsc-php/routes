@@ -11,20 +11,20 @@ class Route
     private array  $http_methods;
     private int    $priority;
     private string $name;
-    private bool   $public;
+    private bool   $protected;
 
-    public function __construct(string $route, array $http_methods, bool $public = false, int $priority = 999, string $name = '')
+    public function __construct(string $route, array $http_methods, bool $protected = true, int $priority = 999, string $name = '')
     {
         $this->route = $route;
         $this->http_methods = $http_methods;
         $this->priority = $priority;
         $this->name = $name;
-        $this->public = $public;
+        $this->protected = $protected;
     }
 
-    public function isPublic(): bool
+    public function isProtected(): bool
     {
-        return $this->public;
+        return $this->protected;
     }
 
     public function getRoute(): string
