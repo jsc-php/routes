@@ -63,11 +63,6 @@ class Route
         $this->pattern = '/^' . $pattern . '$/';
     }
 
-    public function isProtected(): bool
-    {
-        return $this->protected;
-    }
-
     public function getClass(): string
     {
         return $this->class;
@@ -98,13 +93,13 @@ class Route
         $this->class = $class;
     }
 
-    public function match(?string $uri = null, bool $protected = true): bool
+    public function match(?string $uri = null, bool $public = true): bool
     {
         if (!$uri) {
             $uri = Request::getURI();
         }
         //$uri = '/' . trim($uri, '/');
-        if ($this->protected === $protected) {
+        if ($this->protected === $public) {
             if (preg_match($this->pattern, $uri)) {
                 $this->parameters = $this->getParametersFromURI($uri);
                 return true;
