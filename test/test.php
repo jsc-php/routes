@@ -17,3 +17,7 @@ print_r($router->route_collection);
 $route = $router->getRoute('/test/1', false);
 
 var_dump($route);
+
+$route = $router->getRoute('/test/1', true);
+
+var_dump($route);
