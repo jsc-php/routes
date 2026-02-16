@@ -1,6 +1,6 @@
 # JSC Router
 
-A simple PHP router for handling HTTP requests and routing them to appropriate controller methods.
+A simple PHP router for handling HTTP requests and routing them to appropriate controller methods using PHP attributes.
 
 ## Installation
 
@@ -23,7 +23,7 @@ attributes and handles request routing.
 
 ## Usage
 
-Create a 'RouterConfig' instance and pass it to the Router constructor.
+Create a 'RouterConfig' instance and pass it to the Router constructor:
 
 ```
 $router_config = new \JscPhp\Routes\RouterConfig();
@@ -80,11 +80,13 @@ Adding a question mark to the parameter name makes it optional.
 Adding a pipe <|> to the parameter is optional but can limit the type of values that can be accepted for that
 parameter.
 
-```
- 'i' - integer  
- 'a' - alpha  
- 'd' or 'f' = decimal/float
+| Type          | Symbol     | Description                        | Example                      |
+|---------------|------------|------------------------------------|------------------------------|
+| Integer       | `i`        | Matches only integers              | `{id\|i}` matches `123`      |
+| Alpha         | `a`        | Matches only alphabetic characters | `{name\|a}` matches `john`   |
+| Decimal/Float | `d` or `f` | Matches decimal numbers            | `{price\|d}` matches `19.99` |
 
+```
  use JscPhp\Routes\Attributes\Route;
 
  #[Route('/hello/{id}')] - Matches /hello/abc123  
