@@ -12,5 +12,8 @@ $router_config->addAttributeDirectory(dirname(__DIR__, 1) . '/src/');
 //$router_config->addMemcacheDServer('localhost');
 $router = new Router($router_config);
 print_r($router->route_collection);
-$router->route('/test/1/');
-//$route->go();
+
+
+$route = $router->getRoute('/test/1', false);
+
+var_dump($route);

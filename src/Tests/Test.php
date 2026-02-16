@@ -11,8 +11,15 @@ class Test
 
     }
 
-    #[Route('/test/{id}/{test?}', ['GET'], name: 'test')]
+    #[Route('/test/{id}', ['GET'], public: true, name: 'test')]
     public function test(string $id, ?string $test = null)
+    {
+        echo 'Hello', PHP_EOL;
+        print_r(func_get_args());
+    }
+
+    #[Route('/test/{id}', ['GET'], public: false, name: 'test_private')]
+    public function test_private(string $id, ?string $test = null)
     {
         echo 'Hello', PHP_EOL;
         print_r(func_get_args());

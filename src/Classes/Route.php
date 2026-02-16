@@ -12,13 +12,15 @@ class Route
     private string $method;
     private array  $parameters = [];
     private string $name;
+    private bool   $public;
 
-    public function __construct(string $route)
+    public function __construct(string $route, bool $public = false)
     {
         $route = trim($route, '/');
         $route = '/' . $route;
         $this->route = $route;
         $this->buildRegexPattern();
+        $this->public = $public;
     }
 
     public function buildRegexPattern(): void
@@ -91,16 +93,19 @@ class Route
         $this->class = $class;
     }
 
-    public function match(?string $uri = null): bool
+    public function match(?string $uri = null, bool $public = true): bool
     {
         if (!$uri) {
             $uri = Request::getURI();
         }
         //$uri = '/' . trim($uri, '/');
-        if (preg_match($this->pattern, $uri)) {
-            $this->parameters = $this->getParametersFromURI($uri);
-            return true;
+        if ($this->public === $public) {
+            if (preg_match($this->pattern, $uri)) {
+                $this->parameters = $this->getParametersFromURI($uri);
+                return true;
+            }
         }
+
         return false;
     }
 
