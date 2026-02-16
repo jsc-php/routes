@@ -152,16 +152,17 @@ class Router {
     /**
      * Route the current request URI to the appropriate controller method.
      *
-     * @param string|null $uri If not provided, uses the current request URI.
+     * @param string|null            $uri If not provided, uses the current request URI.
+     * @param array{protected: bool} $options
      *
      * @return void
      * @throws Exception
      */
-    public function route(?string $uri = null): void {
+    public function route(?string $uri = null, $options = []): void {
         if (!$uri) {
             $uri = Request::getURI();
         }
-        $route = $this->getRoute($uri);
+        $route = $this->getRoute($uri, $options);
         if (!$route) {
             throw new Exception('No route found');
         }
