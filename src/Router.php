@@ -139,12 +139,12 @@ class Router
         $route = $arguments['route'] ?? $arguments[0];
         $methods = $arguments['http_methods'] ?? $arguments[1];
         $name = $arguments['name'] ?? $arguments[2] ?? '';
-        $protected = $arguments['protected'] ?? $arguments[3] ?? false;
+        $public = $arguments['public'] ?? $arguments[3] ?? false;
         $priority = $arguments['priority'] ?? $arguments[4] ?? 999;
         if ($priority < 999) {
             $this->sequencing_required = true;
         }
-        $r = new Classes\Route($route, $protected);
+        $r = new Classes\Route($route, $public);
         if (strlen($name) > 0) {
             $r->setName($name);
         }
@@ -157,17 +157,17 @@ class Router
      * Route the current request URI to the appropriate controller method.
      *
      * @param string|null $uri If not provided, uses the current request URI.
-     * @param bool        $protected
+     * @param bool        $public
      *
      * @return void
      * @throws Exception
      */
-    public function route(?string $uri, bool $protected): void
+    public function route(?string $uri, bool $public): void
     {
         if (!$uri) {
             $uri = Request::getURI();
         }
-        $route = $this->getRoute($uri, $protected);
+        $route = $this->getRoute($uri, $public);
         if (!$route) {
             throw new Exception('No route found');
         }
@@ -182,11 +182,11 @@ class Router
      * @return Classes\Route|false
      */
 
-    public function getRoute(?string $uri, bool $protected): Classes\Route|false
+    public function getRoute(?string $uri, bool $public): Classes\Route|false
     {
         if (!$uri) {
             $uri = Request::getURI();
         }
-        return $this->route_collection->findMatch($uri, $protected);
+        return $this->route_collection->findMatch($uri, $public);
     }
 }
