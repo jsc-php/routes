@@ -100,7 +100,6 @@ class RouteObject {
     private function buildFunctionParameters(): void {
         preg_match($this->regex_pattern, $this->matched_uri, $matches);
         $matches = array_slice($matches, 1);
-        print_r($matches);
         foreach ($matches as $key => $value) {
             $this->function_parameters[$this->parameters[$key]] = $value;
         }
