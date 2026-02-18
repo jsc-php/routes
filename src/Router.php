@@ -3,78 +3,61 @@
 namespace JscPhp\Routes;
 
 use FilesystemIterator;
-use JscPhp\Routes\Attributes\Route;
-use JscPhp\Routes\Classes\RouteCollection;
+use JscPhp\Routes\Attr\Access;
+use JscPhp\Routes\Attr\Route;
+use JscPhp\Routes\Bin\RouteObject;
 use JscPhp\Routes\Utility\File;
 use Memcached;
-use ReflectionAttribute;
-use ReflectionMethod;
 
-/**
- * Router class for handling route configuration and routing.
- */
 class Router {
-    public RouteCollection $route_collection;
-    private RouterConfig   $config;
-    private Memcached      $m;
-    private bool           $sequencing_required = false;
 
-    /**
-     * Build the router and load the route collection.
-     *
-     * Scans attribute directories and optionally uses Memcached to cache the
-     * serialized collection.
-     *
-     * @param RouterConfig $config
-     */
+    private RouterConfig    $config;
+    private \Memcached      $memcached;
+    private RouteCollection $route_collection;
+    private RouteObject     $route_object;
+
     public function __construct(RouterConfig $config) {
         $this->config = $config;
-        $routes_loaded = false;
-        if ($this->config->isUseMemcached()) {
-            $this->initMemcached();
-            if ($cache = $this->m->get('route_collection')) {
-                $this->route_collection = unserialize(zlib_decode($cache));
-                $routes_loaded = true;
+        $this->route_collection = new RouteCollection();
+        if ($config->useMemcached()) {
+            $this->initMemCachedServers();
+            if ($this->loadRouteCollectionFromMemCached()) {
+                return;
             }
         }
+        $this->processDirectories();
+        if ($config->useMemcached()) {
+            $this->memcached->set('route_collection', zlib_encode(serialize($this->route_collection), ZLIB_ENCODING_DEFLATE));
+        }
+    }
+
+    private function initMemCachedServers(): void {
+        $this->memcached = new Memcached();
+        $servers = $this->config->getMemcachedServers();
+        foreach ($servers as $server) {
+            $this->memcached->addServer($server[0], $server[1]);
+        }
+    }
+
+    private function loadRouteCollectionFromMemCached(): bool {
+
+        if ($rc = $this->memcached->get('route_collection')) {
+            $this->route_collection = unserialize(zlib_decode($rc));
+            return true;
+        }
+        return false;
+
+    }
+
+    private function processDirectories(): void {
         if (empty($this->route_collection)) {
             $this->route_collection = new RouteCollection();
         }
-        if (!$routes_loaded) {
-            $this->processDirectories();
-            if ($this->sequencing_required) {
-                $this->route_collection->sequence();
+        foreach ($this->config->getClassDirectories() as $class_directory) {
+            if (!is_dir($class_directory)) {
+                throw new \Exception("Class directory {$class_directory} does not exist");
             }
-            if ($this->config->isUseMemcached()) {
-                $this->m->set('route_collection', zlib_encode(serialize($this->route_collection), ZLIB_ENCODING_DEFLATE), 60);
-            }
-        }
-
-    }
-
-    /**
-     * Initialize Memcached connection with configured servers.
-     *
-     * @return void
-     */
-    public function initMemcached(): void {
-        $this->m = new Memcached();
-        foreach ($this->config->getMemcachedServers() as $server) {
-            $this->m->addServer($server[0], $server[1]);
-        }
-    }
-
-    /**
-     * Process attribute directories and load route classes.
-     *
-     * @return void
-     */
-    private function processDirectories(): void {
-        foreach ($this->config->getAttributeDirectories() as $directory) {
-            if (!is_dir($directory)) {
-                throw new \InvalidArgumentException('Supplied directory is not a directory');
-            }
-            $di = new \RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS);
+            $di = new \RecursiveDirectoryIterator($class_directory, FilesystemIterator::SKIP_DOTS);
             $fi = new \RecursiveIteratorIterator($di);
             foreach ($fi as $file) {
                 if ($file->getExtension() === 'php') {
@@ -86,85 +69,37 @@ class Router {
         }
     }
 
-    /**
-     * Process a single PHP class file and extract public methods..
-     *
-     * @param string $class_name
-     *
-     * @return void
-     * @throws \ReflectionException
-     */
     private function processClass(string $class_name): void {
-        //echo 'Processing class: ' . $class_name, PHP_EOL;
         $reflect = new \ReflectionClass($class_name);
-        foreach ($reflect->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            $this->processMethod($method, $class_name);
-        }
-    }
-
-    /**
-     * Process a single method and extract route attributes.
-     *
-     * @param ReflectionMethod $method
-     * @param string           $class_name
-     *
-     * @return void
-     */
-    private function processMethod(ReflectionMethod $method, string $class_name): void {
-        foreach ($method->getAttributes(Route::class) as $attribute) {
-            $route = $this->processAttribute($attribute, $class_name, $method->getName());
-            if ($method->getAttributes(\JscPhp\Authorization\Attr\Access::class)) {
-                $route->setProtected(true);
+        foreach ($reflect->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+            foreach ($method->getAttributes(Route::class) as $attr_route) {
+                //@var Route $route
+                $route = $attr_route->newInstance();
+                $rte = new RouteObject($route->getRoute(),
+                        $route->getMethods(),
+                        $class_name,
+                        $method->getName());
+                foreach ($method->getAttributes(Access::class) as $attr_access) {
+                    /** @var Access $access */
+                    $access = $attr_access->newInstance();
+                    $rte->setAccess($access);
+                }
+                $this->route_collection->addRoute($rte);
             }
         }
     }
 
-    /**
-     * Process a single route attribute and extract route details.
-     *
-     * @param ReflectionAttribute $attribute
-     * @param string              $class_name
-     * @param string              $method
-     *
-     * @return void
-     */
-
-    private function processAttribute(ReflectionAttribute $attribute, string $class_name, string $method): \JscPhp\Routes\Classes\Route {
-        $arguments = $attribute->getArguments();
-        $route = $arguments['route'] ?? $arguments[0];
-        $methods = $arguments['http_methods'] ?? $arguments[1];
-        $name = $arguments['name'] ?? $arguments[2] ?? '';
-        $priority = $arguments['priority'] ?? $arguments[3] ?? 999;
-        if ($priority < 999) {
-            $this->sequencing_required = true;
+    public function getRoute(string $uri = '', bool $search_private = false): false|RouteObject {
+        if (empty($uri)) {
+            $uri = Request::getUri();
         }
-        $r = new Classes\Route($attribute->newInstance());
-        if (strlen($name) > 0) {
-            $r->setName($name);
-        }
-        $r->setClassName($class_name);
-        $r->setMethod($method);
-        $this->route_collection->addRoute($r, $methods, $priority);
-        return $r;
+        $this->route_object = $this->route_collection->findRoute($uri, $search_private);
+        return $this->route_object;
     }
 
-
-    /**
-     * Retrieve a route based on the provided URI.
-     *
-     * @param string|null $uri If not provided, uses the current request URI.
-     * @param array       $options
-     *
-     * @return Classes\Route|false
-     */
-
-    public function getRoute(?string $uri = null, array $options = []): Classes\Route|false {
-        $options = array_merge([
-                'protected' => false,
-        ], $options);
-        if (!$uri) {
-            $uri = Request::getURI();
-        }
-        return $this->route_collection->findMatch($uri, $options);
+    public function go(string $uri = '', bool $search_private = false): void {
+        $this->getRoute($uri, $search_private);
+        $class = new $this->route_object->class_name();
+        $class->{$this->route_object->method_name}(...$this->route_object->getFunctionParameters());
     }
 }

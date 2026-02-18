@@ -22,9 +22,10 @@
   "require": {
     "php": ">=8.5",
     "ext-zlib": "*",
-    "ext-http": "*"
+    "ext-http": "*",
+    "ext-uri": "*",
+    "ext-memcached": "*"
   },
   "suggest": {
-    "ext-memcached": "*"
   }
 }
