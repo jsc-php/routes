@@ -55,6 +55,7 @@ class RouterConfig {
     }
 
     public function addClassDirectory(string $directory): self {
+        $directory = '/' . trim($directory, '/') . '/';
         if (!is_dir($directory)) {
             throw new InvalidArgumentException('Supplied directory is not a directory');
         }

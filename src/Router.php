@@ -93,8 +93,10 @@ class Router {
         if (empty($uri)) {
             $uri = Request::getUri();
         }
-        $this->route_object = $this->route_collection->findRoute($uri, $search_private);
-        return $this->route_object;
+        if ($route = $this->route_collection->findRoute($uri, $search_private)) {
+            $this->route_object = $route;
+        }
+        return $route;
     }
 
     public function go(string $uri = '', bool $search_private = false): void {
