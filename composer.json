@@ -27,5 +27,11 @@
     "ext-memcached": "*"
   },
   "suggest": {
-  }
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/jsc-php"
+    }
+  ]
 }
