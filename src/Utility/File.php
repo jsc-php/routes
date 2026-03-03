@@ -35,7 +35,9 @@ class File {
                 while ($tokens[$i]->id === T_WHITESPACE) {
                     $i++;
                 }
-                while ($tokens[$i]->text !== ';' && $tokens[$i]->text !== '{' && $tokens[$i]->id !== T_EXTENDS) {
+                while ($tokens[$i]->text !== ';'
+                        && $tokens[$i]->text !== '{'
+                        && $tokens[$i]->id !== T_EXTENDS) {
                     if (in_array($tokens[$i]->id, [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
                         $classname .= $tokens[$i]->text;
                     }
@@ -46,7 +48,7 @@ class File {
         if ($classname === null) {
             return null;
         }
-        return $namespace !== '' ? $namespace . '\\' . $classname : $classname;
+        return '\\' . $namespace !== '' ? $namespace . '\\' . $classname : $classname;
     }
 
 }
