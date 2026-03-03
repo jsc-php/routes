@@ -37,7 +37,8 @@ class File {
                     $i++;
                 }
                 while ($tokens[$i]->text !== ';'
-                        && $tokens[$i]->text !== '{') {
+                        && $tokens[$i]->text !== '{'
+                        && $tokens[$i]->id !== T_EXTENDS) {
                     if (in_array($tokens[$i]->id, [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
                         $classname .= $tokens[$i]->text;
                     }
