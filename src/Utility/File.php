@@ -2,41 +2,51 @@
 
 namespace JscPhp\Routes\Utility;
 
-class File
-{
-    public static function getClassNameFromFile(string $file): false|string
-    {
-        if (!is_readable($file)) {
-            throw new \InvalidArgumentException('File not readable');
+class File {
+    /**
+     * Extracts the fully qualified class name (namespace and class name) from a PHP file.
+     *
+     * @param string $file The path to the PHP file from which to extract the class name.
+     *                     The file must exist and be readable.
+     *
+     * @return string|null Returns the fully qualified class name if it can be determined,
+     *                     or null if the file does not exist, is not readable, or does not
+     *                     contain a recognizable class declaration.
+     */
+    public static function getClassNameFromFile(string $file): null|string {
+        if (!file_exists($file) || !is_readable($file)) {
+            return null;
         }
         $contents = file_get_contents($file);
         $tokens = \PhpToken::tokenize($contents);
-        $namespace_found = 0;
-        $classname_found = 0;
         $namespace = '';
-        $classname = '';
-        foreach ($tokens as $token) {
-            if ($token->id === T_NAMESPACE) {
-                $namespace_found = 1;
+        $classname = null;
+        for ($i = 0; $i < count($tokens); $i++) {
+            if ($tokens[$i]->id === T_NAMESPACE) {
+                while ($tokens[$i]->text !== ';' && $tokens[$i]->text !== '{') {
+                    if (in_array($tokens[$i]->id, [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+                        $namespace .= $tokens[$i]->text;
+                    }
+                    $i++;
+                }
             }
-            if ($namespace_found === 1 && in_array($token->id, [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
-                $namespace .= $token->text;
-            } elseif ($token->text === ';') {
-                $namespace_found = 2;
-            }
-            if ($token->id === T_CLASS) {
-                $classname_found = 1;
-                $namespace_found = 2;
-            }
-            if ($classname_found === 1 && $token->id == T_STRING) {
-                $classname .= $token->text;
-            } else if ($token->text === '{') {
-                $classname_found = 2;
-            }
-            if ($namespace_found === 2 && $classname_found === 2) {
-                return '\\' . $namespace . '\\' . $classname;
+            if (in_array($tokens[$i]->id, [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM])) {
+                $classname = '';
+                while ($tokens[$i]->id === T_WHITESPACE) {
+                    $i++;
+                }
+                while ($tokens[$i]->text !== ';' && $tokens[$i]->text !== '{' && $tokens[$i]->id !== T_EXTENDS) {
+                    if (in_array($tokens[$i]->id, [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
+                        $classname .= $tokens[$i]->text;
+                    }
+                    $i++;
+                }
             }
         }
-        return false;
+        if ($classname === null) {
+            return null;
+        }
+        return $namespace !== '' ? $namespace . '\\' . $classname : $classname;
     }
+
 }
