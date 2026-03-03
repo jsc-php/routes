@@ -70,7 +70,6 @@ class Router {
     }
 
     private function processClass(string $class_name): void {
-        echo $class_name . "\n";
         $reflect = new \ReflectionClass($class_name);
         foreach ($reflect->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             foreach ($method->getAttributes(Route::class) as $attr_route) {

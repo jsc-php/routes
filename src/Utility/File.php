@@ -49,7 +49,7 @@ class File {
         if ($classname === null) {
             return null;
         }
-        return '\\' . $namespace !== '' ? $namespace . '\\' . $classname : $classname;
+        return '\\' . ($namespace) ? $namespace . '\\' . $classname : $classname;
     }
 
 }
