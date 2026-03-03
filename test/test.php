@@ -12,6 +12,6 @@ $router_config = new RouterConfig([
 
 $router = new \JscPhp\Routes\Router($router_config);
 
-$router->go('/test/1', false);
+print_r($router);
 
 
