@@ -19,10 +19,11 @@ class File {
         }
         $contents = file_get_contents($file);
         $tokens = \PhpToken::tokenize($contents);
-        $namespace = '';
+        $namespace = null;
         $classname = null;
         for ($i = 0; $i < count($tokens); $i++) {
             if ($tokens[$i]->id === T_NAMESPACE) {
+                $namespace = '';
                 while ($tokens[$i]->text !== ';' && $tokens[$i]->text !== '{') {
                     if (in_array($tokens[$i]->id, [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
                         $namespace .= $tokens[$i]->text;
@@ -36,8 +37,7 @@ class File {
                     $i++;
                 }
                 while ($tokens[$i]->text !== ';'
-                        && $tokens[$i]->text !== '{'
-                        && $tokens[$i]->id !== T_EXTENDS) {
+                        && $tokens[$i]->text !== '{') {
                     if (in_array($tokens[$i]->id, [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED])) {
                         $classname .= $tokens[$i]->text;
                     }
