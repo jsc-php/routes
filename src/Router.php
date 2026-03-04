@@ -104,7 +104,7 @@ class Router {
     }
 
     public function go(string $uri = '', bool $search_private = false): void {
-        if ($route = $this->getRoute($uri, $search_private)) {
+        if ($this->getRoute($uri, $search_private)) {
             $class = new $this->route_object->class_name();
             $class->{$this->route_object->method_name}(...$this->route_object->getFunctionParameters());
         } else {
