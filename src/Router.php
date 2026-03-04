@@ -112,6 +112,7 @@ class Router {
         if (empty($uri)) {
             $uri = Request::getUri();
         }
+        $uri = $this->normalizeRoute($uri);
         if ($route = $this->route_collection->findRoute($uri, $search_private)) {
             $this->route_object = $route;
         }
