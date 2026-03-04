@@ -76,7 +76,7 @@ class Router {
                 foreach ($method->getAttributes(Route::class) as $attr_route) {
                     //@var Route $route
                     $route = $attr_route->newInstance();
-                    $rte = new RouteObject($this->normalizeRoute($route),
+                    $rte = new RouteObject($this->normalizeURI($route),
                             $route->getMethods(),
                             $class_name,
                             $method->getName());
@@ -93,7 +93,7 @@ class Router {
         }
     }
 
-    private function normalizeRoute(string $route): string {
+    private function normalizeURI(string $route): string {
         $route = trim($route, '/');
         $route = '/' . $route;
         return $route;
@@ -112,7 +112,7 @@ class Router {
         if (empty($uri)) {
             $uri = Request::getUri();
         }
-        $uri = $this->normalizeRoute($uri);
+        $uri = $this->normalizeURI($uri);
         if ($route = $this->route_collection->findRoute($uri, $search_private)) {
             $this->route_object = $route;
         }
