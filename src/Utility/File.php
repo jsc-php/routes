@@ -20,7 +20,6 @@ class File {
         $contents = file_get_contents($file);
         $tokens = \PhpToken::tokenize($contents);
         $namespace = null;
-        $classname = null;
         for ($i = 0; $i < count($tokens); $i++) {
             if ($tokens[$i]->id === T_NAMESPACE) {
                 $namespace = '';
