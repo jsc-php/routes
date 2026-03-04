@@ -70,27 +70,27 @@ class Router {
     }
 
     private function processClass(string $class_name): void {
-        if (!class_exists($class_name)) {
+        try {
+            $reflect = new \ReflectionClass($class_name);
+            foreach ($reflect->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+                foreach ($method->getAttributes(Route::class) as $attr_route) {
+                    //@var Route $route
+                    $route = $attr_route->newInstance();
+                    $rte = new RouteObject($route->getRoute(),
+                            $route->getMethods(),
+                            $class_name,
+                            $method->getName());
+                    foreach ($method->getAttributes(Access::class) as $attr_access) {
+                        /** @var Access $access */
+                        $access = $attr_access->newInstance();
+                        $rte->setAccess($access);
+                    }
+                    $this->route_collection->addRoute($rte);
+                }
+            }
+        } catch (\Exception $ex) {
             return;
         }
-        $reflect = new \ReflectionClass($class_name);
-        foreach ($reflect->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            foreach ($method->getAttributes(Route::class) as $attr_route) {
-                //@var Route $route
-                $route = $attr_route->newInstance();
-                $rte = new RouteObject($route->getRoute(),
-                        $route->getMethods(),
-                        $class_name,
-                        $method->getName());
-                foreach ($method->getAttributes(Access::class) as $attr_access) {
-                    /** @var Access $access */
-                    $access = $attr_access->newInstance();
-                    $rte->setAccess($access);
-                }
-                $this->route_collection->addRoute($rte);
-            }
-        }
-
     }
 
     public function getRoute(string $uri = '', bool $search_private = false): false|RouteObject {
