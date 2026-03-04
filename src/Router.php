@@ -108,7 +108,7 @@ class Router {
             $class = new $this->route_object->class_name();
             $class->{$this->route_object->method_name}(...$this->route_object->getFunctionParameters());
         } else {
-            throw new \Exception('Route not found');
+            throw new \Exception("No Route for {$uri} not found");
         }
     }
 }
