@@ -76,7 +76,7 @@ class Router {
                 foreach ($method->getAttributes(Route::class) as $attr_route) {
                     //@var Route $route
                     $route = $attr_route->newInstance();
-                    $rte = new RouteObject($route->getRoute(),
+                    $rte = new RouteObject(rtrim($route->getRoute(), '/'),
                             $route->getMethods(),
                             $class_name,
                             $method->getName());
