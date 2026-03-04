@@ -30,7 +30,7 @@ $ composer require jsc-php/routes
 
 ## Usage
 
-Create a 'RouterCOnfig' instance and pass if to the Router Constructor
+Create a 'RouterConfig' instance and pass if to the Router Constructor
 
 ```
 $router_config = new \JscPhp\Routes\RouterConfig();
