@@ -57,7 +57,7 @@ class RouteObject {
             $optional = str_ends_with($parts[0], '?');
             $this->parameters[] = trim($parts[0], '?');
             if (count($parts) == 1) {
-                $r = '([^\/=&?]' . (($optional) ? '*':'+') . ')';
+                $r = '([^\/=&?]' . (($optional) ? '*' : '+') . ')';
             } else if (strlen($parts[1]) > 1) {
                 $p = trim($parts[1], '()');
                 $r = '(' . $p . ')';
@@ -70,13 +70,19 @@ class RouteObject {
                         'a'     => '([a-zA-Z]',
                         default => '([^\/=?])'
                     };
-                    $r .= (($optional) ? '*':'+') . '?)';
+                    $r .= (($optional) ? '*' : '+') . '?)';
                 }
             }
             $pattern = str_replace($match[0], $r, $pattern);
 
         }
         $this->regex_pattern = '/^' . $pattern . '$/';
+    }
+
+    public static function normalizeURI(string $uri): string {
+        $uri = trim($uri, '/');
+        $uri = '/' . $uri;
+        return $uri;
     }
 
     public function getFunctionParameters(): array {
