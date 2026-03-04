@@ -93,7 +93,7 @@ class Router {
         }
     }
 
-    public function getRoute(string $uri = '', bool $search_private = false): false|RouteObject {
+    public function getRoute(string &$uri = '', bool $search_private = false): false|RouteObject {
         if (empty($uri)) {
             $uri = Request::getUri();
         }
