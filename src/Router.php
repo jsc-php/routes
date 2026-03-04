@@ -76,7 +76,7 @@ class Router {
                 foreach ($method->getAttributes(Route::class) as $attr_route) {
                     //@var Route $route
                     $route = $attr_route->newInstance();
-                    $rte = new RouteObject($route,
+                    $rte = new RouteObject($this->normalizeURI($route->getRoute()),
                             $route->getMethods(),
                             $class_name,
                             $method->getName());
@@ -93,13 +93,10 @@ class Router {
         }
     }
 
-    public function go(string $uri = '', bool $search_private = false): void {
-        if ($this->getRoute($uri, $search_private)) {
-            $class = new $this->route_object->class_name();
-            $class->{$this->route_object->method_name}(...$this->route_object->getFunctionParameters());
-        } else {
-            throw new \Exception("No Route for {$uri} not found");
-        }
+    private function normalizeURI(string $route): string {
+        $route = trim($route, '/');
+        $route = '/' . $route;
+        return $route;
     }
 
     public function getRoute(string &$uri = '', bool $search_private = false): false|RouteObject {
@@ -113,9 +110,12 @@ class Router {
         return $route;
     }
 
-    private function normalizeURI(string $route): string {
-        $route = trim($route, '/');
-        $route = '/' . $route;
-        return $route;
+    public function go(string $uri = '', bool $search_private = false): void {
+        if ($this->getRoute($uri, $search_private)) {
+            $class = new $this->route_object->class_name();
+            $class->{$this->route_object->method_name}(...$this->route_object->getFunctionParameters());
+        } else {
+            throw new \Exception("No Route for {$uri} not found");
+        }
     }
 }

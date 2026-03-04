@@ -79,12 +79,6 @@ class RouteObject {
         $this->regex_pattern = '/^' . $pattern . '$/';
     }
 
-    public static function normalizeURI(string $uri): string {
-        $uri = trim($uri, '/');
-        $uri = '/' . $uri;
-        return $uri;
-    }
-
     public function getFunctionParameters(): array {
         return $this->function_parameters;
     }
