@@ -86,9 +86,9 @@ class RouteObject {
     public function match(string $uri): bool {
         if (preg_match($this->regex_pattern, $uri) === 1) {
             $request_method = Request::getMethod();
-            if (empty($request_method) ||
-                    in_array($request_method, $this->methods) ||
-                    in_array('ALL', $this->methods)) {
+            if (empty($this->methods)
+                    || in_array($request_method, $this->methods)
+                    || in_array('ALL', $this->methods)) {
                 $this->matched_uri = $uri;
                 $this->buildFunctionParameters();
                 return true;

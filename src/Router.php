@@ -9,14 +9,16 @@ use JscPhp\Routes\Bin\RouteObject;
 use JscPhp\Routes\Utility\File;
 use Memcached;
 
-class Router {
+class Router
+{
 
     private RouterConfig    $config;
     private \Memcached      $memcached;
     private RouteCollection $route_collection;
     private RouteObject     $route_object;
 
-    public function __construct(RouterConfig $config) {
+    public function __construct(RouterConfig $config)
+    {
         $this->config = $config;
         $this->route_collection = new RouteCollection();
         if ($config->useMemcached()) {
@@ -31,7 +33,8 @@ class Router {
         }
     }
 
-    private function initMemCachedServers(): void {
+    private function initMemCachedServers(): void
+    {
         $this->memcached = new Memcached();
         $servers = $this->config->getMemcachedServers();
         foreach ($servers as $server) {
@@ -39,7 +42,8 @@ class Router {
         }
     }
 
-    private function loadRouteCollectionFromMemCached(): bool {
+    private function loadRouteCollectionFromMemCached(): bool
+    {
 
         if ($rc = $this->memcached->get('route_collection')) {
             $this->route_collection = unserialize(zlib_decode($rc));
@@ -49,7 +53,8 @@ class Router {
 
     }
 
-    private function processDirectories(): void {
+    private function processDirectories(): void
+    {
         if (empty($this->route_collection)) {
             $this->route_collection = new RouteCollection();
         }
@@ -69,17 +74,32 @@ class Router {
         }
     }
 
-    private function processClass(string $class_name): void {
+    private function processClass(string $class_name): void
+    {
         try {
             $reflect = new \ReflectionClass($class_name);
+
+            $class_prefix = '';
+            $class_route_attrs = $reflect->getAttributes(Route::class);
+            if (!empty($class_route_attrs)) {
+                /** @var Route $class_route */
+                $class_route = $class_route_attrs[0]->newInstance();
+                $class_prefix = trim($class_route->getRoute(), '/');
+            }
+
             foreach ($reflect->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
                 foreach ($method->getAttributes(Route::class) as $attr_route) {
                     //@var Route $route
                     $route = $attr_route->newInstance();
-                    $rte = new RouteObject($this->normalizeURI($route->getRoute()),
-                            $route->getMethods(),
-                            $class_name,
-                            $method->getName());
+
+                    $uri = $class_prefix !== ''
+                        ? $class_prefix . '/' . trim($route->getRoute(), '/')
+                        : $route->getRoute();
+
+                    $rte = new RouteObject($this->normalizeURI($uri),
+                        $route->getMethods(),
+                        $class_name,
+                        $method->getName());
                     foreach ($method->getAttributes(Access::class) as $attr_access) {
                         /** @var Access $access */
                         $access = $attr_access->newInstance();
@@ -93,13 +113,15 @@ class Router {
         }
     }
 
-    private function normalizeURI(string $route): string {
+    private function normalizeURI(string $route): string
+    {
         $route = trim($route, '/');
         $route = '/' . $route;
         return $route;
     }
 
-    public function getRoute(string &$uri = '', bool $search_private = false): false|RouteObject {
+    public function getRoute(string &$uri = '', bool $search_private = false): false|RouteObject
+    {
         if (empty($uri)) {
             $uri = Request::getUri();
         }
@@ -110,7 +132,8 @@ class Router {
         return $route;
     }
 
-    public function go(string $uri = '', bool $search_private = false): void {
+    public function go(string $uri = '', bool $search_private = false): void
+    {
         if ($this->getRoute($uri, $search_private)) {
             $class = new $this->route_object->class_name();
             $class->{$this->route_object->method_name}(...$this->route_object->getFunctionParameters());
