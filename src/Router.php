@@ -78,7 +78,6 @@ class Router
     {
         try {
             $reflect = new \ReflectionClass($class_name);
-
             $class_prefix = '';
             $class_route_attrs = $reflect->getAttributes(Route::class);
             if (!empty($class_route_attrs)) {
@@ -113,13 +112,6 @@ class Router
         }
     }
 
-    private function normalizeURI(string $route): string
-    {
-        $route = trim($route, '/');
-        $route = '/' . $route;
-        return $route;
-    }
-
     public function getRoute(string &$uri = '', bool $search_private = false): false|RouteObject
     {
         if (empty($uri)) {
@@ -129,6 +121,13 @@ class Router
         if ($route = $this->route_collection->findRoute($uri, $search_private)) {
             $this->route_object = $route;
         }
+        return $route;
+    }
+
+    private function normalizeURI(string $route): string
+    {
+        $route = trim($route, '/');
+        $route = '/' . $route;
         return $route;
     }
 
