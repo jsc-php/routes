@@ -4,6 +4,7 @@ namespace JscPhp\Routes;
 
 use FilesystemIterator;
 use JscPhp\Routes\Attr\Access;
+use JscPhp\Routes\Attr\Controller;
 use JscPhp\Routes\Attr\Route;
 use JscPhp\Routes\Bin\RouteObject;
 use JscPhp\Routes\Utility\File;
@@ -79,11 +80,11 @@ class Router
         try {
             $reflect = new \ReflectionClass($class_name);
             $class_prefix = '';
-            $class_route_attrs = $reflect->getAttributes(Route::class);
-            if (!empty($class_route_attrs)) {
-                /** @var Route $class_route */
-                $class_route = $class_route_attrs[0]->newInstance();
-                $class_prefix = trim($class_route->getRoute(), '/');
+            $controller_attrs = $reflect->getAttributes(Controller::class);
+            if (!empty($controller_attrs)) {
+                /** @var Controller $controller */
+                $controller = $controller_attrs[0]->newInstance();
+                $class_prefix = trim($controller->getBasePath(), '/');
             }
 
             foreach ($reflect->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
