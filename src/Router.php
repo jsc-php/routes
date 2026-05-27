@@ -130,13 +130,13 @@ class Router
     public function getAccess(): string
     {
         try {
-            $method_attrs = (new \ReflectionMethod($this->route_object->class_name, $this->route_object->method_name))
+            $method_attrs = new \ReflectionMethod($this->route_object->class_name, $this->route_object->method_name)
                 ->getAttributes(Access::class);
             if (!empty($method_attrs)) {
                 return $method_attrs[0]->newInstance()->getAccess();
             }
 
-            $class_attrs = (new \ReflectionClass($this->route_object->class_name))
+            $class_attrs = new \ReflectionClass($this->route_object->class_name)
                 ->getAttributes(Access::class);
             if (!empty($class_attrs)) {
                 return $class_attrs[0]->newInstance()->getAccess();
