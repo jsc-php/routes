@@ -5,8 +5,9 @@ namespace JscPhp\Routes\Attr;
 class Access
 {
     const  ACCESS_ALL       = 'all';
-    const  ACCESS_PUBLIC    = 'public';
     const  ACCESS_PROTECTED = 'protected';
+    const  ACCESS_ADMIN     = 'admin';
+    
     private string $access;
 
     public function __construct(string $access = self::ACCESS_PROTECTED)
