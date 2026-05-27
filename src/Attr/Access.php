@@ -7,9 +7,9 @@ class Access
     const string ACCESS_ALL       = 'all';
     const string ACCESS_PUBLIC    = 'public';
     const string ACCESS_PROTECTED = 'protected';
-    private self $access;
+    private string $access;
 
-    public function __construct(self|string $access = self::ACCESS_PROTECTED)
+    public function __construct(string $access = self::ACCESS_PROTECTED)
     {
         $this->access = $access;
     }
