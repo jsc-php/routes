@@ -2,7 +2,6 @@
 
 namespace JscPhp\Routes\Test;
 
-use JscPhp\Routes\Attr\Access;
 use JscPhp\Routes\Attr\Route;
 
 class Test extends Control {
@@ -12,7 +11,6 @@ class Test extends Control {
     }
 
     #[Route('/test/{id}')]
-    #[Access]
     public function test_b($id): void {
         echo "Public test b - $id\n";
     }

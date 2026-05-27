@@ -17,7 +17,7 @@ class RouteCollection {
         if ($this->checkForDuplicate($route)) {
             throw new \Exception("Duplicate route object");
         }
-        if ($route->getAccess()->isProtected() ?? false) {
+        if ($route->isProtected()) {
             $this->private_routes[$route->getPriority()][] = $route;
         } else {
             $this->public_routes[$route->getPriority()][] = $route;
@@ -26,9 +26,9 @@ class RouteCollection {
     }
 
     public function checkForDuplicate(RouteObject $route): bool {
-        $routes_to_check = $route->getAccess()->isProtected() ?? false
+        $routes_to_check = $route->isProtected()
                 ? $this->private_routes
-                :$this->public_routes;
+                : $this->public_routes;
 
         foreach ($routes_to_check as $priority) {
             foreach ($priority as $existing_route) {

@@ -3,7 +3,6 @@
 namespace JscPhp\Routes;
 
 use FilesystemIterator;
-use JscPhp\Routes\Attr\Access;
 use JscPhp\Routes\Attr\Controller;
 use JscPhp\Routes\Attr\Route;
 use JscPhp\Routes\Bin\RouteObject;
@@ -100,11 +99,6 @@ class Router
                         $route->getMethods(),
                         $class_name,
                         $method->getName());
-                    foreach ($method->getAttributes(Access::class) as $attr_access) {
-                        /** @var Access $access */
-                        $access = $attr_access->newInstance();
-                        $rte->setAccess($access);
-                    }
                     $this->route_collection->addRoute($rte);
                 }
             }

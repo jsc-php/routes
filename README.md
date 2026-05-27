@@ -13,7 +13,6 @@ $ composer require jsc-php/routes
 ### Features
 
 - **Attribute-based routing** – Define routes using modern PHP attributes
-- **Access control** - Built-in support for protected/public routes
 - **Priority Based Routing** – Define routes with priority levels for better control
 - **Memcached support** – Optional route caching for improved performance
 - **URI parameter extraction** – Automatically extract and pass parameters to your methods
@@ -109,16 +108,5 @@ For custom types, you can use also use a regex expression after the pipe. Do not
 
 ```  
 #[Route('/hello/{id|\d{3}}')] - Matches /hello/123 but not /hello/1234
-```
-
-### Access Attribute
-
-Adding an `\JscPhp\Routes\Attr\Access` attribute flags the route as protected. To find a matching route, in the
-`getRoute()` or `go()`
-function, you need to set the `search_private` parameter to `true`.
-
-```
-const('IS_LOGGED_IN', isset($_SESSION, 'uid');
-$router->go(search_private: IS_LOGGED_IN);
 ```
 

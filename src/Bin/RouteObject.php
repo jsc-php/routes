@@ -2,7 +2,6 @@
 
 namespace JscPhp\Routes\Bin;
 
-use JscPhp\Routes\Attr\Access;
 use JscPhp\Routes\Request;
 
 class RouteObject {
@@ -24,8 +23,6 @@ class RouteObject {
     private bool   $protected           = false;
     private string $matched_uri;
     private array  $function_parameters = [];
-    private Access $access;
-
     public function __construct(string $route,
                                 array  $methods,
                                 string $class_name,
@@ -135,16 +132,4 @@ class RouteObject {
         return $this->parameters;
     }
 
-    public function getAccess(): Access {
-        if (empty($this->access)) {
-            // If the access attribute does not exist, it is assumed that it is not protected
-            $this->access = new Access(false);
-        }
-        return $this->access;
-    }
-
-    public function setAccess(Access $access): RouteObject {
-        $this->access = $access;
-        return $this;
-    }
 }
