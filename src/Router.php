@@ -3,6 +3,7 @@
 namespace JscPhp\Routes;
 
 use FilesystemIterator;
+use JscPhp\Routes\Attr\Access;
 use JscPhp\Routes\Attr\Controller;
 use JscPhp\Routes\Attr\Route;
 use JscPhp\Routes\Bin\RouteObject;
@@ -117,6 +118,23 @@ class Router
             $this->route_object = $route;
         }
         return $route;
+    }
+
+    public function isSecure(): bool
+    {
+        $method_attrs = (new \ReflectionMethod($this->route_object->class_name, $this->route_object->method_name))
+            ->getAttributes(Access::class);
+        if (!empty($method_attrs)) {
+            return $method_attrs[0]->newInstance()->isSecure();
+        }
+
+        $class_attrs = (new \ReflectionClass($this->route_object->class_name))
+            ->getAttributes(Access::class);
+        if (!empty($class_attrs)) {
+            return $class_attrs[0]->newInstance()->isSecure();
+        }
+
+        return false;
     }
 
     private function normalizeURI(string $route): string
