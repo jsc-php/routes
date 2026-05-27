@@ -120,7 +120,14 @@ class Router
         return $route;
     }
 
-    public function isSecure(): bool
+    private function normalizeURI(string $route): string
+    {
+        $route = trim($route, '/');
+        $route = '/' . $route;
+        return $route;
+    }
+
+    public function getAccess(): string
     {
         $method_attrs = (new \ReflectionMethod($this->route_object->class_name, $this->route_object->method_name))
             ->getAttributes(Access::class);
@@ -134,14 +141,7 @@ class Router
             return $class_attrs[0]->newInstance()->isSecure();
         }
 
-        return false;
-    }
-
-    private function normalizeURI(string $route): string
-    {
-        $route = trim($route, '/');
-        $route = '/' . $route;
-        return $route;
+        return Access::ACCESS_PROTECTED;
     }
 
     public function go(string $uri = ''): void
