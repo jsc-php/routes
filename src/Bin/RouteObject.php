@@ -20,7 +20,6 @@ class RouteObject {
     private array  $methods;
     private array  $parameters          = [];
     private int    $priority;
-    private bool   $protected           = false;
     private string $matched_uri;
     private array  $function_parameters = [];
     public function __construct(string $route,
@@ -103,14 +102,6 @@ class RouteObject {
 
     }
 
-    public function isProtected(): bool {
-        return $this->protected;
-    }
-
-    public function setProtected(bool $protected): RouteObject {
-        $this->protected = $protected;
-        return $this;
-    }
 
     public function getPriority(): int {
         return $this->priority;

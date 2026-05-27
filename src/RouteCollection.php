@@ -6,9 +6,8 @@ use JscPhp\Routes\Bin\RouteObject;
 
 class RouteCollection {
 
-    private array $public_routes  = [];
-    private array $private_routes = [];
-    private bool  $sequenced      = false;
+    private array $public_routes = [];
+    private bool  $sequenced     = false;
 
     public function __construct() {
     }
@@ -17,20 +16,12 @@ class RouteCollection {
         if ($this->checkForDuplicate($route)) {
             throw new \Exception("Duplicate route object");
         }
-        if ($route->isProtected()) {
-            $this->private_routes[$route->getPriority()][] = $route;
-        } else {
-            $this->public_routes[$route->getPriority()][] = $route;
-        }
+        $this->public_routes[$route->getPriority()][] = $route;
         $this->sequenced = false;
     }
 
     public function checkForDuplicate(RouteObject $route): bool {
-        $routes_to_check = $route->isProtected()
-                ? $this->private_routes
-                : $this->public_routes;
-
-        foreach ($routes_to_check as $priority) {
+        foreach ($this->public_routes as $priority) {
             foreach ($priority as $existing_route) {
                 if ($this->isSameRoute($existing_route, $route)) {
                     return true;
@@ -60,7 +51,6 @@ class RouteCollection {
             return;
         }
         ksort($this->public_routes);
-        ksort($this->private_routes);
         $this->sequenced = true;
     }
 
