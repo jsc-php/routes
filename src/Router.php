@@ -107,13 +107,13 @@ class Router
         }
     }
 
-    public function getRoute(string &$uri = '', bool $search_private = false): false|RouteObject
+    public function getRoute(string &$uri = ''): false|RouteObject
     {
         if (empty($uri)) {
             $uri = Request::getUri();
         }
         $uri = $this->normalizeURI($uri);
-        if ($route = $this->route_collection->findRoute($uri, $search_private)) {
+        if ($route = $this->route_collection->findRoute($uri)) {
             $this->route_object = $route;
         }
         return $route;
@@ -126,9 +126,9 @@ class Router
         return $route;
     }
 
-    public function go(string $uri = '', bool $search_private = false): void
+    public function go(string $uri = ''): void
     {
-        if ($this->getRoute($uri, $search_private)) {
+        if ($this->getRoute($uri)) {
             $class = new $this->route_object->class_name();
             $class->{$this->route_object->method_name}(...$this->route_object->getFunctionParameters());
         } else {

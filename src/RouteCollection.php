@@ -47,16 +47,11 @@ class RouteCollection {
                 && $route1->getPriority() === $route2->getPriority();
     }
 
-    public function findRoute(string $uri = '', bool $search_private = false): false|RouteObject {
+    public function findRoute(string $uri = ''): false|RouteObject {
         if (empty($uri)) {
             $uri = Request::getUri();
         }
         $this->sequenceRoutes();
-        if ($search_private) {
-            if ($route_object = $this->findRoute2($uri, $this->private_routes)) {
-                return $route_object;
-            }
-        }
         return $this->findRoute2($uri, $this->public_routes);
     }
 
