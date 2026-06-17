@@ -1,6 +1,6 @@
 {
   "name": "jsc-php/routes",
-  "description": "Maps a http request to a class method using attributes.",
+  "description": "Attribute based router",
   "type": "library",
   "keywords": [
     "routes",
